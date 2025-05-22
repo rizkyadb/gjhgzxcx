@@ -1,17 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Rocket, Menu, X, Copy, ExternalLink, LogOut } from 'lucide-react';
+import { Rocket, Menu, X } from 'lucide-react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useDisconnect, useBalance } from 'wagmi';
-import { formatEther } from 'viem';
-import { toast } from 'sonner';
+import { useAccount } from 'wagmi';
 
 const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { address, connector } = useAccount();
-  const { disconnect } = useDisconnect();
-  const { data: balance } = useBalance({ address });
+  const { address } = useAccount();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,116 +24,14 @@ const Header: React.FC = () => {
       document.body.style.overflow = '';
     }
   }, [mobileMenuOpen]);
-  
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (!target.closest('.profile-menu') && !target.closest('.profile-button')) {
-        setShowProfileMenu(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-    setShowProfileMenu(false);
-  };
-
-  function truncateEthString(ethString: string, decimals = 4) {
-    const [intPart, decimalPart = ''] = ethString.split('.');
-    return `${intPart}.${decimalPart.slice(0, decimals).padEnd(decimals, '0')}`;
-  }  
-
-  const handleDisconnect = async () => {
-    try {
-      if (connector?.id === 'metaMask' && window.ethereum) {
-        await window.ethereum.request({
-          method: 'wallet_revokePermissions',
-          params: [{ eth_accounts: {} }],
-        });
-      }
-      disconnect();
-      setShowProfileMenu(false);
-      setMobileMenuOpen(false);
-    } catch (error) {
-      console.error('Error during disconnect:', error);
-    }
-  };
-
-  const copyAddress = async () => {
-    if (address) {
-      await navigator.clipboard.writeText(address);
-      toast.success('Address copied to clipboard!', {
-        position: 'bottom-center',
-        duration: 2000,
-      });
-    }
   };
 
   const truncateAddress = (address: string) => {
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
-
-  const CustomConnectButton = () => (
-    <ConnectButton.Custom>
-      {({
-        account,
-        chain,
-        openAccountModal,
-        openChainModal,
-        openConnectModal,
-        mounted,
-      }) => {
-        const ready = mounted;
-        const connected = ready && account && chain;
-
-        return (
-          <div
-            {...(!ready && {
-              'aria-hidden': true,
-              style: {
-                opacity: 0,
-                pointerEvents: 'none',
-                userSelect: 'none',
-              },
-            })}
-          >
-            {(() => {
-              if (!connected) {
-                return (
-                  <button onClick={openConnectModal} className="button-primary">
-                    Connect Wallet
-                  </button>
-                );
-              }
-
-              if (chain.unsupported) {
-                return (
-                  <button onClick={openChainModal} className="button-primary text-red-500">
-                    Wrong network
-                  </button>
-                );
-              }
-
-              return (
-                <div className="relative profile-menu">
-                  <button
-                    onClick={openAccountModal}
-                    className="button-primary px-3 py-2 flex items-center space-x-2 profile-button"
-                  >
-                    <span>{truncateAddress(account.address)}</span>
-                  </button>
-                </div>
-              );
-            })()}
-          </div>
-        );
-      }}
-    </ConnectButton.Custom>
-  );
 
   return (
     <>
@@ -170,7 +63,7 @@ const Header: React.FC = () => {
             </nav>
 
             <div className="hidden md:block">
-              <CustomConnectButton />
+              <ConnectButton />
             </div>
 
             <button
@@ -209,16 +102,13 @@ const Header: React.FC = () => {
                 key={item}
                 href={`#${item.toLowerCase()}`}
                 className="font-exo text-xl text-gray-300 hover:text-cyan-glow transition-colors py-4"
-                onClick={() => {
-                  toggleMobileMenu();
-                  setShowProfileMenu(false);
-                }}
+                onClick={toggleMobileMenu}
               >
                 {item}
               </a>
             ))}
             <div className="mt-6 w-full px-4 flex justify-center">
-              <CustomConnectButton />
+              <ConnectButton />
             </div>
           </nav>
         </div>
