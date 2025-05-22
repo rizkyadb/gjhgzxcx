@@ -133,12 +133,20 @@ const Header: React.FC = () => {
                   </button>
 
                   <div 
-                    className={`absolute right-0 mt-2 w-72 bg-gray-900/95 backdrop-blur-md border border-cyan-glow/30 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
+                    className={`fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity duration-300 ${
+                      showProfileMenu ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    }`}
+                    style={{ zIndex: 40 }}
+                    onClick={() => setShowProfileMenu(false)}
+                  ></div>
+
+                  <div 
+                    className={`absolute right-0 mt-2 w-72 bg-gray-900/95 backdrop-blur-md border border-cyan-glow/30 rounded-lg shadow-xl transition-all duration-300 ease-out transform ${
                       showProfileMenu 
                         ? 'opacity-100 translate-y-0 visible'
-                        : 'opacity-0 -translate-y-2 invisible'
+                        : 'opacity-0 -translate-y-4 invisible pointer-events-none'
                     }`}
-                    style={{ zIndex: 100 }}
+                    style={{ zIndex: 50 }}
                   >
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-4">
