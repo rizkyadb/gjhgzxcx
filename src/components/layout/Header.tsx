@@ -30,7 +30,6 @@ const Header: React.FC = () => {
     }
   }, [mobileMenuOpen]);
   
-  // Close profile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -48,7 +47,7 @@ const Header: React.FC = () => {
     setShowProfileMenu(false);
   };
 
-  function truncateEthString(ethString, decimals = 4) {
+  function truncateEthString(ethString: string, decimals = 4) {
     const [intPart, decimalPart = ''] = ethString.split('.');
     return `${intPart}.${decimalPart.slice(0, decimals).padEnd(decimals, '0')}`;
   }  
@@ -133,64 +132,69 @@ const Header: React.FC = () => {
                     <span>{truncateAddress(account.address)}</span>
                   </button>
 
-                  {showProfileMenu && (
-                    <div className="absolute right-0 mt-2 w-72 bg-gray-900/95 backdrop-blur-md border border-cyan-glow/30 rounded-lg shadow-xl">
-                      <div className="p-4">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-cyan-glow font-orbitron">Wallet Profile</h3>
-                          <button
-                            onClick={() => setShowProfileMenu(false)}
-                            className="text-gray-400 hover:text-cyan-glow"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
+                  <div 
+                    className={`absolute right-0 mt-2 w-72 bg-gray-900/95 backdrop-blur-md border border-cyan-glow/30 rounded-lg shadow-xl transform transition-all duration-300 ease-in-out ${
+                      showProfileMenu 
+                        ? 'opacity-100 translate-y-0 visible'
+                        : 'opacity-0 -translate-y-2 invisible'
+                    }`}
+                    style={{ zIndex: 100 }}
+                  >
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-cyan-glow font-orbitron">Wallet Profile</h3>
+                        <button
+                          onClick={() => setShowProfileMenu(false)}
+                          className="text-gray-400 hover:text-cyan-glow transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
 
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between bg-black/50 p-3 rounded-lg">
-                            <span className="text-sm text-gray-300">{truncateAddress(account.address)}</span>
-                            <button
-                              onClick={copyAddress}
-                              className="text-cyan-glow hover:text-cyan-glow/80 transition-colors"
-                            >
-                              <Copy className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="mb-4">
-                          <div className="bg-black/50 p-3 rounded-lg">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm text-gray-300">Balance</span>
-                              <span className="text-cyan-glow font-orbitron">
-                                {balance ? `${truncateEthString(formatEther(balance.value), 5)} ETH` : '0 ETH'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="space-y-2">
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between bg-black/50 p-3 rounded-lg">
+                          <span className="text-sm text-gray-300">{truncateAddress(account.address)}</span>
                           <button
-                            onClick={() => {
-                              window.open(`https://etherscan.io/address/${account.address}`, '_blank');
-                              setShowProfileMenu(false);
-                            }}
-                            className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:text-cyan-glow transition-colors"
+                            onClick={copyAddress}
+                            className="text-cyan-glow hover:text-cyan-glow/80 transition-colors"
                           >
-                            <span>View on Explorer</span>
-                            <ExternalLink className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={handleDisconnect}
-                            className="w-full flex items-center justify-between px-3 py-2 text-sm text-red-400 hover:text-red-300 transition-colors"
-                          >
-                            <span>Disconnect</span>
-                            <LogOut className="h-4 w-4" />
+                            <Copy className="h-4 w-4" />
                           </button>
                         </div>
                       </div>
+
+                      <div className="mb-4">
+                        <div className="bg-black/50 p-3 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-300">Balance</span>
+                            <span className="text-cyan-glow font-orbitron">
+                              {balance ? `${truncateEthString(formatEther(balance.value), 5)} ETH` : '0 ETH'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <button
+                          onClick={() => {
+                            window.open(`https://etherscan.io/address/${account.address}`, '_blank');
+                            setShowProfileMenu(false);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:text-cyan-glow transition-colors"
+                        >
+                          <span>View on Explorer</span>
+                          <ExternalLink className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={handleDisconnect}
+                          className="w-full flex items-center justify-between px-3 py-2 text-sm text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          <span>Disconnect</span>
+                          <LogOut className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })()}
