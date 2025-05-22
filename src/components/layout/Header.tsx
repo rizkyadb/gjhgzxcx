@@ -30,6 +30,18 @@ const Header: React.FC = () => {
     }
   }, [mobileMenuOpen]);
   
+  // Close profile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.profile-menu') && !target.closest('.profile-button')) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -40,7 +52,6 @@ const Header: React.FC = () => {
     const [intPart, decimalPart = ''] = ethString.split('.');
     return `${intPart}.${decimalPart.slice(0, decimals).padEnd(decimals, '0')}`;
   }  
-  
 
   const handleDisconnect = async () => {
     try {
@@ -114,32 +125,27 @@ const Header: React.FC = () => {
               }
 
               return (
-                <div className="relative">
+                <div className="relative profile-menu">
                   <button
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
-                    className="button-primary px-3 py-2 flex items-center space-x-2"
+                    className="button-primary px-3 py-2 flex items-center space-x-2 profile-button"
                   >
                     <span>{truncateAddress(account.address)}</span>
                   </button>
 
-                  {/* Custom Profile Menu */}
                   {showProfileMenu && (
-                    <div className="fixed md:absolute z-50 md:w-72 w-[calc(100vw-2rem)] left-4 right-4 md:left-auto md:right-0 bg-gray-900/95 backdrop-blur-md border border-cyan-glow/30 md:rounded-lg shadow-xl md:top-full md:mt-2 bottom-4 md:bottom-auto">
-                      <div className="p-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
+                    <div className="absolute right-0 mt-2 w-72 bg-gray-900/95 backdrop-blur-md border border-cyan-glow/30 rounded-lg shadow-xl">
+                      <div className="p-4">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-cyan-glow font-orbitron">Wallet Profile</h3>
                           <button
-                            onClick={() => {
-                              setShowProfileMenu(false);
-                              setMobileMenuOpen(false);
-                            }}
+                            onClick={() => setShowProfileMenu(false)}
                             className="text-gray-400 hover:text-cyan-glow"
                           >
                             <X className="h-4 w-4" />
                           </button>
                         </div>
 
-                        {/* Address */}
                         <div className="mb-4">
                           <div className="flex items-center justify-between bg-black/50 p-3 rounded-lg">
                             <span className="text-sm text-gray-300">{truncateAddress(account.address)}</span>
@@ -152,7 +158,6 @@ const Header: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Balance */}
                         <div className="mb-4">
                           <div className="bg-black/50 p-3 rounded-lg">
                             <div className="flex items-center justify-between">
@@ -164,13 +169,11 @@ const Header: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Actions */}
                         <div className="space-y-2">
                           <button
                             onClick={() => {
                               window.open(`https://etherscan.io/address/${account.address}`, '_blank');
                               setShowProfileMenu(false);
-                              setMobileMenuOpen(false);
                             }}
                             className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-300 hover:text-cyan-glow transition-colors"
                           >
@@ -200,7 +203,7 @@ const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 w-full z-40 transition-all duration-300 ${
           isScrolled ? 'bg-black/80 backdrop-blur-md py-3' : 'bg-transparent py-5'
         }`}
       >
@@ -213,7 +216,6 @@ const Header: React.FC = () => {
               </span>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {['Mission', 'Story', 'Technology', 'Community', 'Join'].map((item) => (
                 <a
@@ -247,7 +249,7 @@ const Header: React.FC = () => {
       </header>
 
       <div
-        className={`fixed top-0 left-0 w-full h-full bg-black backdrop-blur-md z-[9999] transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 w-full h-full bg-black backdrop-blur-md z-50 transition-transform duration-300 ease-in-out ${
           mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         } md:hidden`}
       >
@@ -283,7 +285,6 @@ const Header: React.FC = () => {
       </div>
     </>
   );
-
 };
 
 export default Header;
